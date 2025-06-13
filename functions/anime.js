@@ -13,7 +13,7 @@ function buildGraphQLArgs(variables) {
     const args = [];
     // Явное определение, какие ключи являются enum (без кавычек), а какие - числами
     const enumKeys = ['order'];
-    const numericKeys = ['limit'];
+    const numericKeys = ['limit', 'page'];
 
     for (const key in variables) {
         const value = variables[key];

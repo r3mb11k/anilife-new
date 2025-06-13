@@ -1,83 +1,117 @@
 document.addEventListener('DOMContentLoaded', () => {
     const grid = document.getElementById('anime-grid');
-    const paginationContainer = document.getElementById('pagination-container');
     const preloader = document.getElementById('preloader');
-
     let currentPage = 1;
-    let currentFilters = {}; // Placeholder for filter logic
+    let isLoading = false; // Флаг для предотвращения одновременной загрузки нескольких страниц
 
-    async function loadCatalog(page = 1, filters = {}) {
-        showPreloader();
+    // Функция для создания карточки аниме
+    function createAnimeCard(anime) {
+        const titleForSlug = anime.name || anime.russian || 'no-title';
+        const displayTitle = anime.russian || anime.name || 'Без названия';
+        const animeId = anime.id;
+        if (!animeId) return null;
+
+        const slug = titleForSlug.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+        
+        const card = document.createElement('a');
+        card.href = `/anime/${animeId}-${slug}`;
+        card.className = 'anime-card'; // Используем тот же класс, что и на главной
+        card.dataset.animeId = animeId;
+
+        const isOngoing = anime.status === 'ongoing';
+        let statusText = '';
+        if (isOngoing) statusText = 'Онгоинг';
+        else if (anime.status === 'released') statusText = 'Вышло';
+        else if (anime.status === 'anons') statusText = 'Анонс';
+
+        const infoParts = [];
+        if (anime.kind !== 'movie') {
+            const episodesCount = isOngoing ? anime.episodesAired : anime.episodes;
+            infoParts.push(`${episodesCount || '?'} эп.`);
+        }
+        if (statusText) {
+            infoParts.push(statusText);
+        }
+        if (anime.airedOn?.year) {
+            infoParts.push(anime.airedOn.year);
+        }
+
+        const infoHtml = infoParts.map(part => `<span class="info-item">${part}</span>`).join('');
+
+        card.innerHTML = `
+            <div class="card-poster-wrapper">
+                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${displayTitle}" class="card-poster" loading="lazy">
+                <div class="card-overlay">
+                    <div class="card-info">${infoHtml}</div>
+                </div>
+            </div>
+            <div class="card-title">${displayTitle}</div>
+        `;
+
+        // Асинхронная загрузка постера
+        loadPosterForCard(card.querySelector('.card-poster'), anime);
+
+        return card;
+    }
+
+    // Асинхронная загрузка постера для одной карточки
+    async function loadPosterForCard(imgElement, anime) {
         try {
-            const params = {
-                action: 'get_catalog', // New API action
-                page,
-                limit: 24, // A good number for a grid view
-                ...filters
-            };
-            const animeList = await fetchFromApi(params.action, params);
-            
-            if (!animeList || animeList.length === 0) {
-                grid.innerHTML = '<p>Ничего не найдено.</p>';
-                updatePagination(false); // Hide pagination if no results
-                return;
+            const kitsuPosterUrl = await fetchKitsuPoster(anime);
+            if (kitsuPosterUrl) {
+                imgElement.src = kitsuPosterUrl;
+            } else {
+                const shikimoriPoster = anime.poster?.mainUrl ? `https://shikimori.one${anime.poster.mainUrl}` : null;
+                imgElement.src = shikimoriPoster || 'https://shikimori.one/assets/globals/missing_original.jpg';
             }
-
-            await populateGrid(animeList, grid);
-            updatePagination(animeList.length === params.limit);
-
         } catch (error) {
-            console.error('Ошибка загрузки каталога:', error);
-            grid.innerHTML = `<p class="error-message">Не удалось загрузить каталог. ${error.message}</p>`;
-        } finally {
-            hidePreloader();
+            console.error(`Failed to load poster for ${anime.name}`, error);
+            const shikimoriPoster = anime.poster?.mainUrl ? `https://shikimori.one${anime.poster.mainUrl}` : null;
+            imgElement.src = shikimoriPoster || 'https://shikimori.one/assets/globals/missing_original.jpg'; // Заглушка при ошибке
         }
     }
-    
-    function showPreloader() {
+
+    // Функция загрузки аниме
+    async function loadAnime(page) {
+        if (isLoading) return;
+        isLoading = true;
         preloader.style.display = 'flex';
-        grid.style.display = 'none';
-        paginationContainer.style.display = 'none';
-    }
 
-    function hidePreloader() {
-        preloader.style.display = 'none';
-        grid.style.display = 'grid'; // Use grid for catalog layout
-        paginationContainer.style.display = 'flex';
-    }
-
-    function updatePagination(hasNextPage) {
-        paginationContainer.innerHTML = '';
-        
-        const prevButton = document.createElement('button');
-        prevButton.textContent = 'Назад';
-        prevButton.disabled = currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (currentPage > 1) {
-                currentPage--;
-                loadCatalog(currentPage, currentFilters);
+        try {
+            const animeList = await fetchFromApi('catalog', { page: page, limit: 48 });
+            if (animeList && animeList.length > 0) {
+                animeList.forEach(anime => {
+                    const card = createAnimeCard(anime);
+                    if (card) grid.appendChild(card);
+                });
+                currentPage++;
+            } else {
+                // Если данных больше нет, можно остановить дальнейшие запросы
+                window.removeEventListener('scroll', handleScroll);
+                console.log('Все аниме загружены.');
             }
-        });
-
-        const pageDisplay = document.createElement('span');
-        pageDisplay.textContent = `Страница ${currentPage}`;
-        pageDisplay.style.margin = '0 1rem';
-
-        const nextButton = document.createElement('button');
-        nextButton.textContent = 'Вперед';
-        nextButton.disabled = !hasNextPage;
-        nextButton.addEventListener('click', () => {
-            currentPage++;
-            loadCatalog(currentPage, currentFilters);
-        });
-
-        paginationContainer.appendChild(prevButton);
-        paginationContainer.appendChild(pageDisplay);
-        paginationContainer.appendChild(nextButton);
+        } catch (error) {
+            console.error('Ошибка загрузки каталога:', error);
+            // Можно показать сообщение об ошибке
+        } finally {
+            isLoading = false;
+            preloader.style.display = 'none';
+        }
     }
-    
-    // Initial load
-    loadCatalog(currentPage, currentFilters);
+
+    // Обработчик скролла для "бесконечной" прокрутки
+    function handleScroll() {
+        // Загружаем следующую страницу, когда пользователь почти доскроллил до конца
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loadAnime(currentPage);
+        }
+    }
+
+    // Первоначальная загрузка
+    loadAnime(currentPage);
+
+    // Вешаем обработчик скролла
+    window.addEventListener('scroll', handleScroll);
 });
 
 // We need a function to populate the grid, similar to script.js but adapted for the catalog
@@ -124,19 +158,5 @@ async function populateGrid(animeList, grid) {
         animeCard.href = `/anime/${animeId}-${slug}`;
         animeCard.className = 'anime-card';
         
-        animeCard.innerHTML = `
-            <div class="card-poster-wrapper">
-                <img src="${posterUrl}" alt="${displayTitle}" class="card-poster" loading="lazy" onerror="this.onerror=null;this.src='https://shikimori.one/assets/globals/missing_original.jpg';">
-                <div class="card-overlay">
-                    <div class="card-info">
-                        <span class="info-item">${anime.kind?.toUpperCase() || ''}</span>
-                        <span class="info-item">${anime.status?.replace('released', 'FINISHED').toUpperCase() || ''}</span>
-                        <span class="info-item">EP ${anime.episodes || '?'}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="card-title">${displayTitle}</div>
-        `;
-        grid.appendChild(animeCard);
     });
-} 
+}
