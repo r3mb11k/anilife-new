@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог аниме | AniLIFE</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/catalog.css">
+    <!-- icon CDN removed -->
+</head>
+<body>
+    <header class="header-container">
+        <div class="logo">
+            <a href="/">Ani<span>Life</span></a>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Найти аниме" id="searchInput">
+            <button id="searchButton"><img src="/images/search.png" alt="search" width="24" height="24"></button>
+        </div>
+        <nav class="header-nav">
+            <a href="/catalog.html"><img src="/images/catalog.png" alt="catalog" width="24" height="24"></a>
+            <button class="notification-btn"><img src="/images/notification.png" alt="notification" width="24" height="24"></button>
+            <button id="profileButton" class="profile-btn"><video src="/videos/654572ebf960eebd40d406bb34e48730.mp4" alt="profile" autoplay loop muted width="24" height="24"></video></button>
+        </nav>
+    </header>
+
+    <main class="container page-content">
+        <aside id="filters-sidebar">
+            <h2>Фильтры</h2>
+            <!-- Фильтры будут добавляться сюда динамически -->
+        </aside>
+        <section id="catalog-content">
+            <div id="anime-grid" class="anime-grid">
+                <!-- Карточки аниме будут здесь -->
+            </div>
+            <div id="pagination-container">
+                <!-- Кнопки пагинации будут здесь -->
+            </div>
+        </section>
+    </main>
+
+    <div id="preloader" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+    
+    <script src="/js/api.js"></script>
+    <script src="/js/catalog.js"></script>
+</body>
+</html> 

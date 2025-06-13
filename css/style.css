@@ -1,0 +1,421 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@400;500;600;700;900&display=swap');
+
+:root {
+    --primary-color: #DC143C;
+    --background: #000;
+    --background-second: #171719;
+    --text: #fff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat Alternates', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+}
+
+a {
+    text-decoration: none;
+    color: var(--text);
+}
+
+.header-container {
+    background-color: var(--background-second);
+    padding-inline: 16px;
+    width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 999px;
+    margin-top: 20px;
+    height: 64px;
+    border: none;
+    outline: none;
+}
+
+.logo a {
+    color: #FFFFFF;
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.logo span {
+    color: var(--primary-color);
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.search-bar {
+    width: 100%;
+    background-color: #2d2d30;
+    border-radius: 36px;
+    padding: 16px;
+    max-width: 408px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-bar input[type="text"] {
+    background-color: transparent;
+    border: none;
+    color: var(--text);
+    outline: none;
+    font-size: 16px;
+    font-weight: 600;
+    flex: 1;
+}
+
+.search-bar input[type="text"]::placeholder {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.search-bar button {
+    background-color: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+
+}
+
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.header-nav a {
+    color: var(--text);
+    font-size: 24px; 
+}
+
+.header-nav a:hover {
+    color: #FFFFFF;
+}
+
+.notification-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.profile-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.profile-btn video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-inline: 50px;
+} 
+
+
+.anime-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    position: relative; /* Необходимо для позиционирования псевдо-элемента */
+    display: flex;
+    align-items: center;
+}
+
+.section-title::before {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 1.05em; /* Высота будет равна ~1.5 высоты текста */
+    background-color: #fff; /* Белый цвет, как на примере */
+    border-radius: 3px;
+    margin-right: 12px;
+}
+
+.carousel-container {
+    position: relative;
+}
+
+/* Carousel edge fades */
+.carousel-container::before,
+.carousel-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px; /* Subtle fade width */
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.3s ease;
+}
+
+.carousel-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--background) 0%, transparent 100%);
+    opacity: 0; 
+}
+
+.carousel-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--background) 0%, transparent 100%);
+    opacity: 1;
+}
+
+/* JS-controlled classes for fades */
+.carousel-container.drag-has-prev::before {
+    opacity: 1;
+}
+
+.carousel-container:not(.drag-has-next)::after {
+    opacity: 0;
+}
+
+.anime-grid {
+    display: flex; 
+    gap: 12px;
+    overflow-x: auto;
+    scroll-behavior: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.anime-grid::-webkit-scrollbar {
+    display: none;
+}
+
+.anime-card {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    width: 175px; /* Фиксированная ширина */
+    flex-shrink: 0; /* Prevent cards from shrinking */
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; /* Прячем все, что выходит за пределы карточки */
+    user-select: none; /* Предотвращаем выделение текста при перетаскивании */
+    -webkit-user-drag: none; /* Отключаем стандартный drag-n-drop для Webkit */
+}
+
+.anime-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 175px;
+    height: 255px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 16px;
+}
+
+.card-poster-wrapper {
+    position: relative;
+    overflow: hidden; /* Это самый важный пункт: всё, что выходит за рамки, обрезается */
+    border-radius: 8px;
+    background-color: #1a1a1a; /* Цвет фона на время загрузки постера */
+    border-radius: 16px;
+
+}
+
+.card-poster {
+    display: block; /* Убирает лишние отступы у изображения */
+    width: 100%;
+    aspect-ratio: 2 / 3; /* Жестко задаем пропорции, чтобы карточки не "прыгали" */
+    object-fit: cover; /* Гарантирует, что постер заполнит все пространство, не искажаясь */
+    transition: transform 0.3s ease !important;
+    border-radius: 16px;
+}
+
+
+/* Приближаем постер ВНУТРИ обертки .card-poster-wrapper */
+.anime-card:hover .card-poster {
+    transform: scale(1.05);
+}
+
+.card-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Делаем градиент более темным и распространяем его выше */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.6) 40%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease !important;
+    display: flex;
+    align-items: flex-end;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.anime-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.card-info {
+    color: var(--text);
+    /* Устанавливаем размер шрифта 14px */
+    font-size: 12px;
+    font-weight: 600;
+    width: 100%;
+    text-align: center;
+    /* Добавляем плавное появление текста */
+    transform: translateY(8px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.anime-card:hover .card-info {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.info-item {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.info-item.ongoing {
+    color: #4ADE80;
+}
+
+.info-item.anons {
+    color: #EF4444;
+}
+
+.info-item:not(:last-child)::after {
+    content: '•';
+    margin-inline: 4px;
+    color: var(--text);
+}
+
+.card-title {
+    padding-top: 8px;
+    line-height: 1.3;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* Свойства для многострочного сокращения */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    /* Резервируем место под 2 строки, чтобы избежать CLS */
+    min-height: 45px; 
+}
+
+/* Скелетоны */
+.skeleton-card {
+    flex: 0 0 175px;
+    width: 175px;
+}
+.skeleton-poster {
+    width: 175px;
+    height: 255px;
+    border-radius: 16px;
+    background-color: #1a1a1a;
+    /* Добавление анимации пульсации */
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+
+
+.skeleton-title {
+    height: 1em;
+    width: 80%;
+    margin: 12px auto 0;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    /* Добавление анимации пульсации */
+    animation: pulse 2s infinite;
+    animation-delay: 0.2s;
+}
+
+/* --- Стрелки карусели --- */
+.arrow {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 32px;
+    cursor: pointer;
+    border: none;
+    color: var(--text); 
+    z-index: 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    background-color: transparent;
+}
+
+
+.arrow.hidden {
+    opacity: 0 !important;
+    pointer-events: none;
+}
+
+.prev-arrow {
+    left: 16px;
+}
+
+.next-arrow {
+    right: 16px;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .anime-section h2 {
+        /* ... existing code ... */
+    }
+}
+
+.error-message {
+    color: #888;
+    padding: 20px;
+    font-size: 1rem;
+}
+
