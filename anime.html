@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Загрузка... | AniLIFE</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/anime-details.css">
+</head>
+<body>
+    <header class="header-container">
+        <div class="logo">
+            <a href="/">Ani<span>Life</span></a>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Найти аниме" id="searchInput">
+            <button id="searchButton"><img src="/images/search.png" alt="search" width="24" height="24"></button>
+        </div>
+        <nav class="header-nav">
+            <a href="/catalog.html"><img src="/images/catalog.png" alt="catalog" width="24" height="24"></a>
+            <button class="notification-btn"><img src="/images/notification.png" alt="notification" width="24" height="24"></button>
+            <button id="profileButton" class="profile-btn"><video src="/videos/654572ebf960eebd40d406bb34e48730.mp4" alt="profile" autoplay loop muted width="24" height="24"></video></button>
+        </nav>
+    </header>
+
+    <!-- Прелоадер, который показывается во время загрузки -->
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Основной контент -->
+    <main id="anime-content" class="container" style="display: none;">
+        <!-- Баннер и основная информация -->
+        <div class="anime-banner-section">
+            <div class="banner-wrapper">
+                <img src="" alt="Баннер аниме" class="anime-banner" id="anime-banner">
+                <div class="banner-overlay"></div>
+            </div>
+            
+            <div class="anime-main-content">
+                <div class="poster-column">
+                    <div class="poster-wrapper">
+                        <img src="" alt="Постер аниме" class="anime-poster" id="anime-poster">
+                    </div>
+                    <div class="add-to-plan-wrapper">
+                        <button class="add-to-plan-btn">
+                            <span class="icon-plus">+</span> Добавить в планы
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="anime-info-column">
+                    <div class="anime-header">
+                        <div class="header-top">
+                            <h1 class="anime-title-ru" id="anime-title"></h1>
+                            <h2 class="anime-title-en" id="anime-title-orig"></h2>
+                        </div>
+                        <div class="header-actions">
+                            <div class="shikimori-rating" id="shikimori-rating">
+                                <img src="/images/shikimori-icon.svg" alt="Shikimori" class="shiki-icon">
+                                <span class="rating-value">8.18</span>
+                            </div>
+                            <button class="rate-btn">Оценить</button>
+                        </div>
+                    </div>
+
+                    <!-- Информация о следующем эпизоде (для онгоингов) -->
+                    <div class="next-episode-block" id="next-episode-container" style="display: none;">
+                        <div class="next-episode-info">
+                            <div class="next-episode-title">Следующий эпизод</div>
+                            <div class="next-episode-details" id="next-episode-details"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Характеристики аниме -->
+                    <div class="anime-details header-details">
+                        <div class="detail-row">
+                            <div class="detail-label">Тип:</div>
+                            <div class="detail-value" id="anime-type"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Эпизоды:</div>
+                            <div class="detail-value" id="anime-episodes"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Длительность эпизода:</div>
+                            <div class="detail-value" id="anime-duration"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Статус:</div>
+                            <div class="detail-value" id="anime-status"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Выпуск:</div>
+                            <div class="detail-value" id="anime-airing-dates"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Студия:</div>
+                            <div class="detail-value" id="anime-studio"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Сезон:</div>
+                            <div class="detail-value" id="anime-year"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Возрастной рейтинг:</div>
+                            <div class="detail-value" id="anime-age-rating"></div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Жанр:</div>
+                            <div class="detail-value" id="anime-genres"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация об аниме -->
+        <div class="anime-content-wrapper">
+            <!-- Описание аниме -->
+            <div class="anime-description-block">
+                <h3 class="section-title">Описание</h3>
+                <div class="anime-description" id="anime-description"></div>
+            </div>
+
+            <!-- Связанные аниме -->
+            <div class="related-anime">
+                <h3 class="section-title">Связанное</h3>
+                <div class="carousel-container">
+                    <div class="anime-grid" id="related-anime-list"></div>
+                    <button class="arrow prev-arrow">‹</button>
+                    <button class="arrow next-arrow">›</button>
+                </div>
+            </div>
+
+            <!-- Похожее аниме -->
+            <div class="similar-anime">
+                <h3 class="section-title">Похожее</h3>
+                <div class="carousel-container">
+                    <div class="anime-grid" id="similar-anime-list"></div>
+                    <button class="arrow prev-arrow">‹</button>
+                    <button class="arrow next-arrow">›</button>
+                </div>
+            </div>
+            
+            <!-- Плеер -->
+            <div class="player-section">
+                <div class="player-area">
+                    <!-- Основной блок плеера -->
+                    <div class="main-player-container">
+                        <div id="anime-player" class="player-wrapper">
+                            <iframe src="" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <!-- Боковая панель управления плеером -->
+                    <div class="player-sidebar">
+                        <div class="sidebar-header">
+                            <h4>Плеер</h4>
+                        </div>
+                        <div class="player-source-selector">
+                            <button class="player-source-btn active">
+                                <span>Kodik</span>
+                            </button>
+                        </div>
+                        <div class="translations-section">
+                            <div class="translations-header">
+                                <div class="tabs-wrapper">
+                                    <button class="tab-btn active" data-tab="voiceovers-list">Озвучка <span id="voiceovers-count"></span></button>
+                                    <button class="tab-btn" data-tab="subtitles-list">Субтитры <span id="subtitles-count"></span></button>
+                                    <button class="tab-btn" data-tab="reactions-list">Реакция</button>
+                                </div>
+                            </div>
+                            <div id="voiceovers-list" class="translations-list active"></div>
+                            <div id="subtitles-list" class="translations-list"></div>
+                            <div id="reactions-list" class="translations-list">
+                                 <div class="translation-item-placeholder">Скоро здесь появятся реакции!</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Панель выбора эпизодов -->
+                    <div class="episodes-container">
+                        <div class="episodes-search-wrapper" id="episodes-search-wrapper">
+                            <i class="search-icon">
+                                <img src="/images/search.png" alt="Поиск эпизода">
+                            </i>
+                            <input type="text" id="episode-search" placeholder="№ Эпизода">
+                            <button class="close-search-btn" aria-label="Закрыть поиск">&times;</button>
+                        </div>
+                        <button class="arrow prev-arrow" aria-label="Previous episodes">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </button>
+                        <div class="episodes-panel-wrapper">
+                            <div class="episodes-panel" id="episodes-list">
+                                <!-- Эпизоды будут добавлены через JavaScript -->
+                            </div>
+                        </div>
+                        <button class="arrow next-arrow" aria-label="Next episodes">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+    </main>
+    
+    <script src="/js/drag-scroll.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/anime-details.js"></script>
+</body>
+</html>

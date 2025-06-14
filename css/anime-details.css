@@ -1,0 +1,1029 @@
+/* --- Стили для страницы anime-details.html --- */
+
+/* Прелоадер */
+#preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Баннер и верхняя секция */
+.anime-banner-section {
+    position: relative;
+    margin-top: 20px;
+    margin-bottom: 16px;
+}
+
+.banner-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    border-radius: 20px;
+    margin-bottom: 20px;
+}
+
+.anime-banner {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+    pointer-events: none;
+}
+
+/* Главная секция контента */
+.anime-main-content {
+    display: grid;
+    grid-template-columns: 266px 1fr auto;
+    grid-template-areas:
+        "poster header   rate"
+        "poster nextep  nextep"
+        "poster details details";
+    grid-template-rows: 100px auto auto;
+    gap: 16px 32px;
+    margin-top: -120px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Когда блок со следующей серией скрыт, меняем структуру сетки, чтобы убрать пустую строку и лишний gap */
+.anime-main-content.nextep-is-hidden {
+    grid-template-areas:
+        "poster header   rate"
+        "poster details details";
+    grid-template-rows: 100px auto;
+}
+
+.poster-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-left: 16px;
+    grid-area: poster;
+}
+
+.poster-wrapper {
+    width: 250px;
+    height: 350px;
+    flex-shrink: 0;
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    margin-left: 0;
+}
+
+.anime-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.add-to-plan-wrapper {
+}
+
+.add-to-plan-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.2s;
+}
+
+.add-to-plan-btn:hover {
+    background-color: #b0102a;
+}
+
+.add-to-plan-btn i {
+    font-size: 14px;
+}
+
+.anime-info-column {
+    display: contents;
+}
+
+.anime-header {
+    display: contents;
+
+}
+
+.header-top {
+    grid-area: header;
+    align-self: end;
+    padding-bottom: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.anime-title-ru {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.header-actions {
+    grid-area: rate;
+    display: flex;
+    gap: 8px;
+    align-items: end;
+    margin-right: 16px;
+    margin-bottom: 16px;
+}
+
+.rate-btn {
+    background-color: var(--background-second);
+    color: #fff;
+    border: 1px solid #786f62;
+    border-radius: 8px;
+    padding: 0px 10px;
+    height: 34px; /* Чтобы была одинаковой высоты с рейтингом */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+
+.shikimori-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--background-second);
+    color: #fff;
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0px 10px;
+    border-radius: 8px;
+    border: 1px solid #786f62; 
+    height: 34px; /* Явно задаем высоту для выравнивания */
+}
+
+.shiki-icon {
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+}
+
+.rating-value {
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.anime-title-en {
+    font-size: 16px;
+    font-weight: 500;
+    color: #bbb;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}
+
+.next-episode-block {
+    grid-area: nextep;
+    background-color: rgba(220, 20, 60, 0.15);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.next-episode-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.next-episode-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.next-episode-details {
+    font-size: 14px;
+    color: #fff;
+}
+
+.header-details {
+    grid-area: details;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background-color: var(--background-second);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.anime-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.anime-description-block {
+    background-color: var(--background-second);
+    border-radius: 20px;
+    padding: 16px;
+}
+
+.anime-description {
+    line-height: 1.5;
+    color: #fff;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.anime-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+}
+
+.detail-label {
+    min-width: 170px;
+    color: #999;
+    font-weight: 700;
+}
+
+.detail-value {
+    color: #fff;
+}
+
+.player-section {
+    margin-top: 30px;
+}
+
+.player-area {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    grid-template-areas:
+        "player sidebar"
+        "episodes episodes";
+    width: 100%;
+}
+
+.main-player-container {
+    grid-area: player;
+}
+
+.player-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    background-color: #000;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.player-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+}
+
+.player-sidebar {
+    grid-area: sidebar;
+    background-color: var(--background-second);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+    max-height: 100%;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.sidebar-header h4 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.filter-btn {
+    width: 28px;
+    height: 28px;
+    background-color: #2a2a2e;
+    border: none;
+    border-radius: 4px;
+    color: #8e8e93;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background-color 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: #3a3a3c;
+}
+
+.filter-btn img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.player-source-selector .player-source-btn {
+    
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #3a3a3c;
+    border: none;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.player-source-selector .player-source-btn.active {
+    background-color: var(--primary-color);
+}
+
+.player-source-btn img {
+    height: 20px;
+    width: 20px;
+    border-radius: 4px;
+
+}
+
+.translations-section {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+    max-height: 100%;
+}
+
+.translations-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.tabs-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+.translations-header .tab-btn {
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    
+    flex-grow: 0;
+    text-align: left;
+}
+
+.translations-header .tab-btn.active {
+    color: #fff;
+}
+
+.translations-header .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -11px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    border-radius: 1px;
+}
+
+.translations-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    display: none;
+    scrollbar-width: none;
+}
+
+.translations-list::-webkit-scrollbar {
+    display: none;
+}
+
+.translations-list.active {
+    display: block;
+}
+
+.translation-item {
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.translation-item:hover {
+    background-color: #3a3a3c;
+}
+
+.translation-item.active {
+    background: none;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* --- Sorting Popover --- */
+.filter-wrapper {
+    display: none;
+}
+
+.sort-popover {
+    display: none;
+}
+
+/* --- Episodes Panel (REFACTORED) --- */
+.episodes-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    grid-column: 1 / -1;
+}
+
+/* NEW: Wrapper for the scrolling panel to hold gradients */
+.episodes-panel-wrapper {
+    flex-grow: 1;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Градиенты, которые скрывают обрезанные края (MOVED to wrapper) */
+.episodes-panel-wrapper::before,
+.episodes-panel-wrapper::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 60px;
+    pointer-events: none;
+    z-index: 5;
+    transition: opacity 0.2s ease;
+    opacity: 0;
+}
+.episodes-panel-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, var(--background) 10%, transparent);
+}
+.episodes-panel-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, var(--background) 10%, transparent);
+}
+
+/* Классы для JS для управления видимостью градиентов (MOVED to wrapper) */
+.episodes-panel-wrapper.drag-has-prev::before { opacity: 1; }
+.episodes-panel-wrapper.drag-has-next::after { opacity: 1; }
+
+.episodes-panel {
+     display: flex;
+     overflow-x: scroll;
+     overflow-y: hidden;
+     gap: 12px;
+     -webkit-overflow-scrolling: touch;
+     scrollbar-width: none;
+}
+.episodes-panel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Let arrows be part of the flex flow, overriding absolute positioning from style.css */
+.episodes-container .arrow {
+    position: static;
+    transform: none;
+    flex-shrink: 0;
+}
+
+.episode-btn {
+     background:var(--background-second);
+     border:2px solid transparent;
+     border-radius: 12px;
+     color:#fff;
+     padding:12px 20px;
+     font-size:14px;
+     font-weight:600;
+     white-space:nowrap;
+     cursor:pointer;
+     flex-shrink: 0;
+     user-select: none;
+}
+  
+.episode-btn.active{
+    border:2px solid var(--primary-color);
+    color:var(--primary-color);
+    background-color:transparent;
+    transform:none;
+}
+
+/* Скрываем стандартные иконки Swiper */
+.swiper-button-prev::after,
+.swiper-button-next::after {
+    display: none;
+}
+
+/* ---- Episode search (REFACTORED V2) ---- */
+.episodes-search-wrapper {
+    display: flex;
+    align-items: center;
+    background: var(--background-second);
+    border-radius: 12px;
+    height: 44px;
+    color: #fff;
+    flex-shrink: 0;
+    position: relative;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 44px; /* Collapsed size */
+    cursor: pointer;
+}
+
+.episodes-search-wrapper.expanded {
+    width: 150px; /* Expanded size (was 220px) */
+    cursor: default;
+}
+
+.episodes-search-wrapper .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: opacity 0.2s ease;
+}
+
+.episodes-search-wrapper .search-icon img {
+    width: 16px;
+    height: 16px;
+    display: block;
+}
+
+.episodes-search-wrapper.expanded .search-icon {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#episode-search {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    height: 100%;
+    width: 100%;
+    padding: 0 40px 0 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: text;
+    pointer-events: none;
+}
+
+#episode-search::placeholder {
+  color: #888;
+}
+
+.episodes-search-wrapper.expanded #episode-search {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.close-search-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 24px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.episodes-search-wrapper.expanded .close-search-btn {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.close-search-btn:hover {
+    color: #fff;
+}
+
+#episode-search::-webkit-outer-spin-button,
+#episode-search::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#episode-search {
+    -moz-appearance: textfield;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.section-title::before {
+    content: '';
+    display: block;
+    width: 4px;
+    height: 22px;
+    background-color: var(--primary-color);
+    border-radius: 2px;
+    margin-right: 10px;
+}
+
+@media (max-width: 1024px) {
+    .player-area {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "player"
+            "sidebar"
+            "episodes";
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .anime-main-content {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "poster"
+            "header"
+            "rate"
+            "nextep"
+            "details";
+        margin-top: -150px;
+    }
+
+    .poster-column {
+        align-items: center;
+        margin-left: 0;
+    }
+
+    .anime-info-column {
+        padding-top: 0;
+        align-items: center;
+        text-align: center;
+    }
+
+    .anime-header {
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .header-top {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .shikimori-rating {
+        margin-right: 0;
+        margin-bottom: 0;
+    }
+
+    .banner-wrapper {
+        height: 250px;
+    }
+
+    .episodes-scroll-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+
+    .episodes-scroll-btn.swiper-button-prev {
+        left: -5px;
+    }
+
+    .episodes-scroll-btn.swiper-button-next {
+        right: -5px;
+    }
+
+    .episodes-search-wrapper {
+        margin-right: 10px;
+    }
+
+    #episode-search {
+        width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .banner-wrapper {
+        height: 200px;
+    }
+    
+    .anime-title-ru {
+        font-size: 20px;
+    }
+}
+
+/* Обязательный класс для отображения стрелок */
+.swiper-button-hidden {
+    opacity: 0 !important;
+    cursor: auto;
+    pointer-events: none;
+}
+
+.swiper-button-disabled {
+    opacity: 0.35;
+    cursor: auto;
+    pointer-events: none;
+}
+
+/* --- Sorting Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: #2a2a2e;
+    padding: 20px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 340px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transform: scale(0.95);
+    transition: transform 0.2s ease-in-out;
+}
+
+.modal-overlay.visible .modal-content {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-header .close-btn {
+    background: none;
+    border: none;
+    color: #8e8e93;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+}
+.modal-header .close-btn:hover {
+    color: #fff;
+}
+
+.sort-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sort-options label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.sort-options label:hover {
+    background-color: #3a3a3c;
+}
+
+.sort-options input[type="radio"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #1c1c1e;
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1.15em;
+    height: 1.15em;
+    border: 2px solid #555;
+    border-radius: 50%;
+    transform: translateY(-0.075em);
+    display: grid;
+    place-content: center;
+    margin-right: 12px;
+}
+
+.sort-options input[type="radio"]::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em var(--primary-color);
+}
+
+.sort-options input[type="radio"]:checked::before {
+    transform: scale(1);
+}
+
+.sort-options input[type="radio"]:checked {
+    border-color: var(--primary-color);
+}
+
+/* Ограничиваем высоту/ширину основных скелетов, чтобы не схлопывались */
+#anime-banner.skeleton {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+#anime-poster.skeleton {
+    width: 225px;
+    height: 320px;
+    object-fit: cover;
+}
+
+/* Скелет для заголовка и подзаголовка */
+.skeleton-text {
+    min-height: 24px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+/* Стили для маленьких карточек в секциях "Связанное" и "Похожее" */
+.small-anime-card {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease-in-out;
+}
+
+.small-anime-card:hover {
+    transform: translateY(-5px);
+}
+
+.small-anime-card .card-poster-wrapper {
+    position: relative;
+    width: 100%;
+    padding-top: 140%; /* Соотношение сторон постеров ~2:3 */
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #2c2c2c;
+}
+
+.small-anime-card .card-poster {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.small-anime-card .card-title {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: left;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+    height: 2.6em; /* 2 строки */
+}
+
+.small-anime-card .card-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 8px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.small-anime-card:hover .card-overlay {
+    opacity: 1;
+}
+
+.small-anime-card .card-info {
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.anime-grid .placeholder-text,
+.anime-grid .error-text {
+    grid-column: 1 / -1; /* Занимает всю ширину грида */
+    text-align: center;
+    padding: 40px 0;
+    color: #858585;
+}
