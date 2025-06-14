@@ -136,6 +136,7 @@ async function populateCarousel(animeList, grid) {
     };
 
     for (const anime of animeList) {
+        if (anime.rating === 'rx') continue; // не показываем хентай
         const titleForSlug = anime.name || anime.russian || 'no-title';
         const displayTitle = anime.russian || anime.name || 'Без названия';
         const animeId = anime.id;
@@ -223,15 +224,19 @@ async function loadPosterForCard(animeCard, anime) {
     const imgElement = animeCard.querySelector('.card-poster');
     if (!imgElement) return;
 
-    try {
-        // Используем правильное имя функции и передаем весь объект anime
-        const kitsuPosterUrl = await fetchKitsuPoster(anime);
-        imgElement.src = kitsuPosterUrl || shikimoriPosterUrl;
-        imgElement.dataset.loaded = 'true';
-    } catch (error) {
-        console.error(`Ошибка загрузки постера с Kitsu для "${anime.russian || anime.name}":`, error);
-        imgElement.src = shikimoriPosterUrl;
-    }
+    // Сначала пытаемся получить постер с Kitsu
+    fetchKitsuPoster(anime)
+        .then(url => {
+            if (url) {
+                imgElement.src = url; // Kitsu нашли -> ставим
+            } else {
+                imgElement.src = shikimoriPosterUrl; // fallback
+            }
+        })
+        .catch(err => {
+            console.warn('Kitsu poster fetch failed:', err);
+            imgElement.src = shikimoriPosterUrl;
+        });
 }
 
 /**

@@ -10,20 +10,25 @@ const USER_AGENT = 'AniLIFE Project (for educational purposes)';
  */
 function buildGraphQLArgs(variables) {
     const args = [];
-    // Явное определение, какие ключи являются enum (без кавычек), а какие - числами
     const enumKeys = ['order'];
-    const numericKeys = ['limit', 'page'];
+    const numericKeys = ['limit', 'page', 'score'];
 
     for (const key in variables) {
         const value = variables[key];
         if (value === undefined || value === null) continue;
 
-        if (numericKeys.includes(key)) {
-            args.push(`${key}: ${value}`); // Числа без кавычек
-        } else if (enumKeys.includes(key)) {
-            args.push(`${key}: ${value}`); // Enum без кавычек
+        if (Array.isArray(value)) {
+            if (value.length === 1) {
+                args.push(`${key}: "${value[0]}"`);
+            } else {
+                const arrayString = `[${value.map(v => `"${v}"`).join(', ')}]`;
+                args.push(`${key}: ${arrayString}`);
+            }
+        } else if (numericKeys.includes(key) || enumKeys.includes(key)) {
+            // Числа и enums без кавычек
+            args.push(`${key}: ${value}`);
         } else {
-            // Все остальные параметры (status, kind, ids, search) - это строки, они должны быть в кавычках
+            // Все остальные параметры (search, season) - это строки, они должны быть в кавычках
             args.push(`${key}: "${value}"`);
         }
     }
@@ -155,7 +160,7 @@ function getCurrentAnimeSeason() {
 
 exports.handler = async (event) => {
     const { queryStringParameters } = event;
-    const { action, id, order, limit, query: searchQuery, page, kind, status, genre } = queryStringParameters;
+    const { action, id, order, limit, query: searchQuery, page, kind, status, genre, rating } = queryStringParameters;
 
     if (!action) {
         return { statusCode: 400, body: JSON.stringify({ error: 'Missing action parameter' }) };
@@ -163,43 +168,100 @@ exports.handler = async (event) => {
 
     try {
         let data;
-        let variables = {
-            limit: parseInt(limit) || 20,
-        };
-
+        
         switch (action) {
             case 'get_list':
-                // Устанавливаем базовые переменные из queryString
-                variables = {
-                    limit: parseInt(limit) || 20,
-                    order: order || 'popularity' // order обязателен для get_list
+                let variables = {
+                    limit: parseInt(limit) || 28,
+                    page: parseInt(page) || 1,
+                    order: order || 'popularity'
                 };
 
-                // Обрабатываем kind и status как строковые значения
+                if (searchQuery) variables.search = searchQuery;
+
+                // --- Обработка фильтров ---
+                // Всегда преобразуем параметры в массив, если они существуют
                 if (kind) {
-                    variables.kind = kind.toLowerCase();
-                }
-                if (status) {
-                    variables.status = status.toLowerCase();
+                    if (Array.isArray(kind)) {
+                        variables.kind = kind;
+                    } else if (kind.includes(',')) {
+                        variables.kind = kind.split(',');
+                    } else {
+                        variables.kind = kind; // одиночное значение строкой
+                    }
                 }
 
-                // Обработка прежних специальных псевдо-значений order
+                if (status) {
+                    if (Array.isArray(status)) {
+                        variables.status = status;
+                    } else if (status.includes(',')) {
+                        variables.status = status.split(',');
+                    } else {
+                        variables.status = status;
+                    }
+                }
+
+                if (rating) {
+                    if (Array.isArray(rating)) {
+                        variables.rating = rating;
+                    } else if (rating.includes(',')) {
+                        variables.rating = rating.split(',');
+                    } else {
+                        variables.rating = rating;
+                    }
+                }
+
+                if (genre) {
+                    // Жанры должны быть строкой с ID через запятую, а не массивом
+                    variables.genre = genre;
+                }
+                
+                // Специальная логика для главной страницы
                 if (order === 'ranked_movies') {
                     variables.order = 'popularity';
                     variables.kind = 'movie';
-                }
-                if (order === 'ranked') {
+                } else if (order === 'ranked') {
                     variables.kind = 'tv';
+                }
+                
+                // 5. Обрабатываем `score` (минимальная оценка)
+                if (queryStringParameters.score) {
+                    variables.score = parseInt(queryStringParameters.score, 10);
                 }
                 
                 data = (await fetchFromShikimoriGraphQL(GET_ANIMES_QUERY_TEMPLATE, variables)).animes;
                 break;
             
+            case 'get_genres':
+                 const genreResponse = await fetch('https://shikimori.one/api/genres', {
+                    headers: { 'User-Agent': USER_AGENT }
+                });
+                if (!genreResponse.ok) {
+                    throw new Error(`Failed to fetch genres: ${genreResponse.statusText}`);
+                }
+                const allGenres = await genreResponse.json();
+                // Фильтруем жанры: берём только с entry_type === 'Anime'
+                const animeGenres = allGenres.filter(g => g.entry_type === 'Anime');
+                // Убираем возможные дубликаты по id/названию
+                const unique = [];
+                const seen = new Set();
+                for (const g of animeGenres) {
+                    if (!seen.has(g.name)) {
+                        unique.push(g);
+                        seen.add(g.name);
+                    }
+                }
+                data = unique;
+                break;
+
             case 'get_seasonal':
-                variables.season = getCurrentAnimeSeason();
-                variables.kind = 'tv'; // Сезонное аниме — только сериалы
-                variables.order = 'popularity';
-                data = (await fetchFromShikimoriGraphQL(GET_ANIMES_QUERY_TEMPLATE, variables)).animes;
+                let seasonalVars = {
+                    limit: parseInt(limit) || 20,
+                    season: getCurrentAnimeSeason(),
+                    kind: 'tv',
+                    order: 'popularity'
+                };
+                data = (await fetchFromShikimoriGraphQL(GET_ANIMES_QUERY_TEMPLATE, seasonalVars)).animes;
                 break;
             
             case 'get_details':

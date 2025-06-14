@@ -1,109 +1,120 @@
 /**
- * Получает постер с Kitsu для одного аниме.
- * @param {object} anime - Объект аниме.
- * @returns {Promise<string|null>} - URL постера или null.
+ * Poster & Banner helper using Kitsu REST API as primary source
+ * and Shikimori images as ultimate fallback (handled by caller).
+ *
+ * Exposes two global async functions:
+ *   fetchKitsuPoster(anime)  -> Promise<string|null>
+ *   fetchKitsuBanner(anime)  -> Promise<string|null>
+ *
+ * Both functions accept the original Shikimori anime object and attempt
+ * to resolve a corresponding image URL on Kitsu by searching with the
+ * Russian or Romaji title.
  */
-async function fetchKitsuPoster(anime) {
-    // Ищем по наиболее точному названию: сначала английское, потом ромадзи, потом русское
-    const titleToSearch = anime.name || anime.russian;
-    if (!titleToSearch) return null;
 
-    try {
-        const response = await fetch(`https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(titleToSearch)}&page[limit]=1`);
-        if (!response.ok) return null;
+// --- Internal constants & caches ------------------------------------------------
+const __TTL = 24 * 60 * 60 * 1000; // 24 hours
+const __rawCache = new Map();      // title -> { data, ts }
 
-        const kitsuData = await response.json();
-        // Берем самый первый результат, он обычно самый релевантный
-        return kitsuData.data[0]?.attributes?.posterImage?.medium || null;
-    } catch (error) {
-        console.error(`Ошибка при запросе постера с Kitsu для "${titleToSearch}":`, error);
-        return null;
-    }
+// Concurrency limiter so we do not spam Kitsu (limit ~8 parallel)
+const __MAX_PARALLEL = 8;
+let __inflight = 0;
+const __queue = [];
+
+// --- Helper: persistent localStorage cache -------------------------------------
+function __lsRead(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { value, ts } = JSON.parse(raw);
+    return Date.now() - ts < __TTL ? value : null;
+  } catch { return null; }
 }
 
-// --- Расширенная версия fetchKitsuPoster с кэшем и ограничением одновременных запросов ---
-const __kitsuPosterCache = new Map();
-const __kitsuFetchQueue = [];
-let __kitsuActiveRequests = 0;
-const __KITSU_MAX_CONCURRENT = 8;
-
-/**
- * Внутренняя функция, которая делает фактический запрос к Kitsu API.
- * @param {string} titleToSearch
- * @returns {Promise<string|null>}
- */
-async function __doKitsuFetch(titleToSearch) {
-    const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(titleToSearch)}&page[limit]=1`;
-    try {
-        const response = await fetch(url, {
-            headers: {
-                'Accept': 'application/vnd.api+json'
-            }
-        });
-        if (!response.ok) return null;
-        const kitsuData = await response.json();
-        return kitsuData.data?.[0]?.attributes?.posterImage?.medium || null;
-    } catch (error) {
-        console.error(`Ошибка при запросе постера с Kitsu для "${titleToSearch}":`, error);
-        return null;
-    }
+function __lsWrite(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ value, ts: Date.now() }));
+  } catch { /* quota errors are ignored */ }
 }
 
-/**
- * Обрабатывает очередь запросов, поддерживая максимум __KITSU_MAX_CONCURRENT одновременно.
- */
-function __processKitsuQueue() {
-    if (__kitsuActiveRequests >= __KITSU_MAX_CONCURRENT || __kitsuFetchQueue.length === 0) return;
-    const { titleToSearch, resolve } = __kitsuFetchQueue.shift();
-    __kitsuActiveRequests++;
-    __doKitsuFetch(titleToSearch)
-        .then(result => {
-            __kitsuPosterCache.set(titleToSearch, result);
-            resolve(result);
-        })
-        .finally(() => {
-            __kitsuActiveRequests--;
-            // Запускаем обработку следующего элемента очереди
-            __processKitsuQueue();
-        });
+// --- Helper: concurrency-aware queue -------------------------------------------
+function __enqueue(task) {
+  return new Promise(resolve => {
+    __queue.push({ task, resolve });
+    __dequeue();
+  });
 }
 
-/**
- * Получает постер с Kitsu для одного аниме.
- * Использует кэш и ограничивает количество одновременных сетевых запросов.
- * @param {object} anime - Объект аниме.
- * @returns {Promise<string|null>} - URL постера или null.
- */
-async function fetchKitsuPoster(anime) {
-    const titleToSearch = anime?.name || anime?.russian;
-    if (!titleToSearch) return null;
-
-    // Если уже есть в кэше – возвращаем сразу
-    if (__kitsuPosterCache.has(titleToSearch)) {
-        return __kitsuPosterCache.get(titleToSearch);
-    }
-
-    // Создаём Promise и ставим запрос в очередь
-    return new Promise((resolve) => {
-        __kitsuFetchQueue.push({ titleToSearch, resolve });
-        __processKitsuQueue();
+function __dequeue() {
+  if (__inflight >= __MAX_PARALLEL || __queue.length === 0) return;
+  const { task, resolve } = __queue.shift();
+  __inflight++;
+  task()
+    .then(resolve)
+    .catch(() => resolve(null))
+    .finally(() => {
+      __inflight--;
+      __dequeue();
     });
 }
 
-// --- Persistent cache в localStorage (TTL 24 ч) ---
-function __getPersistedPoster(title) {
-    try {
-        const raw = localStorage.getItem(`kitsuPoster_${title}`);
-        if (!raw) return null;
-        const { url, ts } = JSON.parse(raw);
-        // истекает через 24ч
-        const isFresh = Date.now() - ts < 24 * 60 * 60 * 1000;
-        return isFresh ? url : null;
-    } catch { return null; }
+// --- Core: fetch raw Kitsu data for a title ------------------------------------
+async function __fetchKitsuData(title) {
+  const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}&page[limit]=1`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+  try {
+    const resp = await fetch(url, {
+      headers: { Accept: 'application/vnd.api+json' },
+      signal: controller.signal
+    });
+    if (!resp.ok) return null;
+    const json = await resp.json();
+    return json.data?.[0]?.attributes || null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
-function __persistPoster(title, url) {
-    try {
-        localStorage.setItem(`kitsuPoster_${title}`, JSON.stringify({ url, ts: Date.now() }));
-    } catch { /* ignore quota errors */ }
-} 
+async function __getKitsuData(title) {
+  // Memory-level cache first
+  const cached = __rawCache.get(title);
+  if (cached && Date.now() - cached.ts < __TTL) {
+    return cached.data;
+  }
+
+  // Persistent cache (localStorage)
+  const persisted = __lsRead(`kitsuData_${title}`);
+  if (persisted) {
+    __rawCache.set(title, { data: persisted, ts: Date.now() });
+    return persisted;
+  }
+
+  // Remote fetch (queued)
+  const data = await __enqueue(() => __fetchKitsuData(title));
+  if (data) {
+    __rawCache.set(title, { data, ts: Date.now() });
+    __lsWrite(`kitsuData_${title}`, data);
+  }
+  return data;
+}
+
+// --- Public helpers -------------------------------------------------------------
+async function fetchKitsuPoster(anime) {
+  const title = anime?.name || anime?.russian;
+  if (!title) return null;
+  const data = await __getKitsuData(title);
+  return data?.posterImage?.large || data?.posterImage?.medium || null;
+}
+
+async function fetchKitsuBanner(anime) {
+  const title = anime?.name || anime?.russian;
+  if (!title) return null;
+  const data = await __getKitsuData(title);
+  return data?.coverImage?.large || data?.coverImage?.original || null;
+}
+
+// Expose globally so that other inline scripts can use them
+window.fetchKitsuPoster = fetchKitsuPoster;
+window.fetchKitsuBanner = fetchKitsuBanner; 

@@ -26,18 +26,83 @@
     </header>
 
     <main class="container page-content">
-        <aside id="filters-sidebar">
-            <h2>Фильтры</h2>
-            <!-- Фильтры будут добавляться сюда динамически -->
-        </aside>
         <section id="catalog-content">
+            <div class="catalog-header">
+                <div class="custom-select w200" id="sort-by">
+                    <div class="select-header">
+                        <span>По популярности</span>
+                        <i class="arrow-down"></i>
+                    </div>
+                    <div class="select-dropdown">
+                        <div class="option" data-value="popularity">По популярности</div>
+                        <div class="option" data-value="ranked">По оценке</div>
+                        <div class="option" data-value="name">По алфавиту</div>
+                        <div class="option" data-value="aired_on">По дате выхода</div>
+                    </div>
+                </div>
+                <div class="layout-switch">
+                    <button id="layout-grid-btn" class="layout-btn" title="Сетка">Сетка</button>
+                    <button id="layout-list-btn" class="layout-btn" title="Список">Список</button>
+                </div>
+            </div>
             <div id="anime-grid" class="anime-grid">
-                <!-- Карточки аниме будут здесь -->
             </div>
-            <div id="pagination-container">
-                <!-- Кнопки пагинации будут здесь -->
-            </div>
+            <!-- <div id="pagination-container">
+                Кнопки пагинации будут здесь
+            </div> -->
         </section>
+        <aside id="filters-sidebar">
+            <div class="filters-header">
+                <h3>Фильтры</h3>
+                <button id="reset-filters-btn" class="reset-btn">Сбросить</button>
+            </div>
+            <div class="filter-group">
+                <label for="genres-filter" class="filter-label">Жанры</label>
+                <div class="custom-select" id="genres-filter">
+                    <div class="select-header">
+                        <div class="selected-tags">
+                            <span class="placeholder">Выберите жанры</span>
+                        </div>
+                        <button type="button" class="clear-tags" title="Очистить жанры">×</button>
+                        <i class="arrow-down"></i>
+                    </div>
+                    <div class="select-dropdown">
+                        <!-- Жанры будут загружены сюда -->
+                    </div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Возрастной рейтинг</label>
+                <div class="checkbox-grid">
+                    <div class="checkbox-item"><input type="checkbox" id="rating-g" name="age_rating" value="g"><label for="rating-g">G</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="rating-pg" name="age_rating" value="pg"><label for="rating-pg">PG</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="rating-pg13" name="age_rating" value="pg_13"><label for="rating-pg13">PG-13</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="rating-r" name="age_rating" value="r"><label for="rating-r">R</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="rating-r-plus" name="age_rating" value="r_plus"><label for="rating-r-plus">R+</label></div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Тип</label>
+                <div class="checkbox-grid">
+                    <div class="checkbox-item"><input type="checkbox" id="type-tv" name="type" value="tv"><label for="type-tv">ТВ Сериал</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="type-movie" name="type" value="movie"><label for="type-movie">Фильм</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="type-ova" name="type" value="ova"><label for="type-ova">OVA</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="type-ona" name="type" value="ona"><label for="type-ona">ONA</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="type-special" name="type" value="special"><label for="type-special">Спешл</label></div>
+                </div>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Статус тайтла</label>
+                <div class="checkbox-grid">
+                    <div class="checkbox-item"><input type="checkbox" id="status-anons" name="status" value="anons"><label for="status-anons">Анонс</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="status-ongoing" name="status" value="ongoing"><label for="status-ongoing">Онгоинг</label></div>
+                    <div class="checkbox-item"><input type="checkbox" id="status-released" name="status" value="released"><label for="status-released">Завершён</label></div>
+                </div>
+            </div>
+            <div class="filters-footer">
+                <button id="apply-filters-btn" class="apply-btn">Применить</button>
+            </div>
+        </aside>
     </main>
 
     <div id="preloader" style="display: none;">
