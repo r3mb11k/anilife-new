@@ -18,17 +18,11 @@ function buildGraphQLArgs(variables) {
         if (value === undefined || value === null) continue;
 
         if (Array.isArray(value)) {
-            if (value.length === 1) {
-                args.push(`${key}: "${value[0]}"`);
-            } else {
-                const arrayString = `[${value.map(v => `"${v}"`).join(', ')}]`;
-                args.push(`${key}: ${arrayString}`);
-            }
+             const arrayString = `[${value.map(v => `"${v}"`).join(', ')}]`;
+             args.push(`${key}: ${arrayString}`);
         } else if (numericKeys.includes(key) || enumKeys.includes(key)) {
-            // Числа и enums без кавычек
             args.push(`${key}: ${value}`);
         } else {
-            // Все остальные параметры (search, season) - это строки, они должны быть в кавычках
             args.push(`${key}: "${value}"`);
         }
     }
@@ -221,7 +215,8 @@ exports.handler = async (event) => {
                     variables.order = 'popularity';
                     variables.kind = 'movie';
                 } else if (order === 'ranked') {
-                    variables.kind = 'tv';
+                    // Cохраняем 'kind' если он был выбран в фильтрах
+                    variables.kind = variables.kind || 'tv';
                 }
                 
                 // 5. Обрабатываем `score` (минимальная оценка)
@@ -341,13 +336,31 @@ exports.handler = async (event) => {
                 if (!id) throw new Error("Anime ID is required for get_related");
                 {
                     const url = `https://shikimori.one/api/animes/${id}/related`;
-                    const resp = await fetch(url, {
-                        headers: { 'User-Agent': USER_AGENT }
-                    });
+                    const resp = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
                     if (!resp.ok) {
                         throw new Error(`Shikimori REST request failed with status ${resp.status}`);
                     }
                     data = await resp.json();
+
+                    // ---- ДОБОР ПОЛНОРАЗМЕРНЫХ ПОСТЕРОВ ЧЕРЕЗ GraphQL ----
+                    const ids = data.map(r => r.anime?.id).filter(Boolean);
+                    if (ids.length > 0) {
+                        const idsString = ids.join(',');
+                        const postersResp = await fetchFromShikimoriGraphQL(GET_ANIMES_QUERY_TEMPLATE, { ids: idsString });
+                        const posterMap = new Map();
+                        postersResp.animes.forEach(a => {
+                            posterMap.set(a.id, a.poster?.originalUrl || a.poster?.mainUrl || null);
+                        });
+
+                        data = data.map(rel => {
+                            const fullPoster = posterMap.get(rel.anime?.id);
+                            if (fullPoster) {
+                                rel.anime.image = rel.anime.image || {};
+                                rel.anime.image.original = fullPoster.startsWith('http') ? fullPoster.replace('https://shikimori.one','') : fullPoster;
+                            }
+                            return rel;
+                        });
+                    }
                 }
                 break;
 
@@ -355,13 +368,29 @@ exports.handler = async (event) => {
                 if (!id) throw new Error("Anime ID is required for get_similar");
                 {
                     const url = `https://shikimori.one/api/animes/${id}/similar`;
-                    const resp = await fetch(url, {
-                        headers: { 'User-Agent': USER_AGENT }
-                    });
+                    const resp = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
                     if (!resp.ok) {
                         throw new Error(`Shikimori REST request failed with status ${resp.status}`);
                     }
                     data = await resp.json();
+
+                    const ids = data.map(a => a.id).filter(Boolean);
+                    if (ids.length > 0) {
+                        const idsString = ids.join(',');
+                        const postersResp = await fetchFromShikimoriGraphQL(GET_ANIMES_QUERY_TEMPLATE, { ids: idsString });
+                        const posterMap = new Map();
+                        postersResp.animes.forEach(a => {
+                            posterMap.set(a.id, a.poster?.originalUrl || a.poster?.mainUrl || null);
+                        });
+                        data = data.map(a => {
+                            const fullPoster = posterMap.get(a.id);
+                            if (fullPoster) {
+                                a.image = a.image || {};
+                                a.image.original = fullPoster.startsWith('http') ? fullPoster.replace('https://shikimori.one','') : fullPoster;
+                            }
+                            return a;
+                        });
+                    }
                 }
                 break;
             

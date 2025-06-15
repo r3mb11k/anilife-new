@@ -292,12 +292,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function createAnimeCard(anime) {
         const displayTitle = anime.russian || anime.name || 'Без названия';
+        const titleForSlug = anime.name || anime.russian || 'no-title';
         const animeId = anime.id;
         if (!animeId) return null;
         
         const card = document.createElement('a');
         // Формируем slug, как на главной странице, для ЧПУ-ссылки
-        const slug = createSlug(displayTitle);
+        const slug = createSlug(titleForSlug);
         card.href = `/anime/${animeId}-${slug}`;
         card.className = 'anime-card';
         card.dataset.animeId = animeId;

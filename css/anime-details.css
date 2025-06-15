@@ -20,7 +20,7 @@
     border-radius: 50%;
     width: 50px;
     height: 50px;
-    animation: spin 1s linear infinite;
+    animation: spin 1s linear infinite !important;
 }
 
 @keyframes spin {
@@ -588,7 +588,7 @@
 .episode-btn.active{
     border:2px solid var(--primary-color);
     color:var(--primary-color);
-    background-color:transparent;
+    background-color: var(--background-second);
     transform:none;
 }
 
@@ -605,7 +605,7 @@
     background: var(--background-second);
     border-radius: 12px;
     height: 44px;
-    color: #fff;
+    color: var(--text);
     flex-shrink: 0;
     position: relative;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);

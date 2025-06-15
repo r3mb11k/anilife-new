@@ -379,24 +379,24 @@ async function populateDetailsAndLoadPoster(anime) {
             'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
         // функция-цепочка, которая подставит первый доступный вариант
-        const setBannerFallback = () => {
+        const pickBanner = () => {
             const candidates = [];
-            // Безопасно добавляем кандидатов
-            if (anime.screenshots?.length > 0 && anime.screenshots[0].originalUrl)
+            if (anime.screenshots?.[0]?.originalUrl) {
                 candidates.push(createFullUrl(anime.screenshots[0].originalUrl));
-            if (anime.poster?.originalUrl)
-                candidates.push(createFullUrl(anime.poster.originalUrl));
-            
-            // Если кандидатов нет, используем дефолтный
-            const finalSrc = candidates.find(src => src) || 'https://shikimori.one/assets/globals/missing_original.jpg';
-            
-            if (bannerElement.src !== finalSrc) {
-                bannerElement.src = finalSrc;
             }
+            if (anime.poster?.originalUrl) {
+                candidates.push(createFullUrl(anime.poster.originalUrl));
+            }
+            return candidates.find(src => src) || 'https://shikimori.one/assets/globals/missing_original.jpg';
         };
 
-        // если любая ошибка загрузки изображения – пробуем следующий вариант
-        bannerElement.addEventListener('error', setBannerFallback, { once: true });
+        bannerElement.src = pickBanner();
+
+        // на случай ошибки попробуем следующий кандидат
+        bannerElement.addEventListener('error', () => {
+            const nextSrc = pickBanner();
+            if (bannerElement.src !== nextSrc) bannerElement.src = nextSrc;
+        }, { once: true });
 
         // Если плеера нет, показываем сообщение
         if (!anime.playerInfo?.defaultLink) {
@@ -710,12 +710,24 @@ async function loadPoster(anime) {
     posterElement.src = shikimoriPoster || 'https://shikimori.one/assets/globals/missing_original.jpg';
 
     // --- BANNER ---
-    const bannerFallback = () => {
+    const pickBanner = () => {
         const candidates = [];
-        if (anime.screenshots?.[0]?.originalUrl) candidates.push(createFullUrl(anime.screenshots[0].originalUrl));
-        if (anime.poster?.originalUrl) candidates.push(createFullUrl(anime.poster.originalUrl));
-        bannerElement.src = candidates.find(src => src) || 'https://shikimori.one/assets/globals/missing_original.jpg';
+        if (anime.screenshots?.[0]?.originalUrl) {
+            candidates.push(createFullUrl(anime.screenshots[0].originalUrl));
+        }
+        if (anime.poster?.originalUrl) {
+            candidates.push(createFullUrl(anime.poster.originalUrl));
+        }
+        return candidates.find(src => src) || 'https://shikimori.one/assets/globals/missing_original.jpg';
     };
+
+    bannerElement.src = pickBanner();
+
+    // на случай ошибки попробуем следующий кандидат
+    bannerElement.addEventListener('error', () => {
+        const nextSrc = pickBanner();
+        if (bannerElement.src !== nextSrc) bannerElement.src = nextSrc;
+    }, { once: true });
 
     // Если плеера нет, показываем сообщение
     if (!anime.playerInfo?.defaultLink) {
@@ -822,10 +834,19 @@ function createSmallAnimeCard(animeData, relationLabel = '') {
         shikimoriPoster = `${shikimoriBase}${animeData.image.original}`;
     } else if (animeData.poster?.mainUrl) {
         shikimoriPoster = animeData.poster.mainUrl.startsWith('http') ? animeData.poster.mainUrl : `${shikimoriBase}${animeData.poster.mainUrl}`;
+    } else if (animeData.image?.preview) {
+        shikimoriPoster = `${shikimoriBase}${animeData.image.preview}`;
     }
 
     const imgEl = card.querySelector('.card-poster');
     imgEl.src = shikimoriPoster;
+
+    // если original отдал 404 – подменяем на preview
+    if (animeData.image?.preview && animeData.image?.original) {
+        imgEl.addEventListener('error', () => {
+            imgEl.src = `${shikimoriBase}${animeData.image.preview}`;
+        }, { once: true });
+    }
 
     return card;
 }
