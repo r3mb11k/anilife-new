@@ -398,33 +398,20 @@ async function populateDetailsAndLoadPoster(anime) {
         // если любая ошибка загрузки изображения – пробуем следующий вариант
         bannerElement.addEventListener('error', setBannerFallback, { once: true });
 
-        fetchKitsuBanner(anime)
-            .then(url => {
-                if (url) {
-                    bannerElement.src = url;
-                } else {
-                    bannerFallback();
-                }
-            })
-            .catch(err => {
-                console.warn('Kitsu banner fetch failed:', err);
-                bannerFallback();
-            });
-    }
-
-    // Если плеера нет, показываем сообщение
-    if (!anime.playerInfo?.defaultLink) {
-        playerWrapper.innerHTML = `<div class="player-placeholder">Плеер не найден</div>`;
-    } else {
-        // Если это фильм, скрываем панель эпизодов и выходим
-        if (anime.kind === 'movie') {
-            const episodesContainer = document.querySelector('.episodes-container');
-            if (episodesContainer) {
-                episodesContainer.style.display = 'none';
-            }
+        // Если плеера нет, показываем сообщение
+        if (!anime.playerInfo?.defaultLink) {
+            playerWrapper.innerHTML = `<div class="player-placeholder">Плеер не найден</div>`;
         } else {
-            // Для сериалов отображаем эпизоды
-            populateEpisodes(anime);
+            // Если это фильм, скрываем панель эпизодов и выходим
+            if (anime.kind === 'movie') {
+                const episodesContainer = document.querySelector('.episodes-container');
+                if (episodesContainer) {
+                    episodesContainer.style.display = 'none';
+                }
+            } else {
+                // Для сериалов отображаем эпизоды
+                populateEpisodes(anime);
+            }
         }
     }
 }
@@ -720,18 +707,7 @@ async function loadPoster(anime) {
 
     // --- POSTER --- (Kitsu → Shikимори → заглушка)
     const shikimoriPoster = createFullUrl(anime.poster?.originalUrl);
-    fetchKitsuPoster(anime)
-        .then(url => {
-            if (url) {
-                posterElement.src = url;
-            } else {
-                posterElement.src = shikimoriPoster || '/images/missing_poster.jpg';
-            }
-        })
-        .catch(err => {
-            console.warn('Kitsu poster failed:', err);
-            posterElement.src = shikimoriPoster || '/images/missing_poster.jpg';
-        });
+    posterElement.src = shikimoriPoster || 'https://shikimori.one/assets/globals/missing_original.jpg';
 
     // --- BANNER ---
     const bannerFallback = () => {
@@ -741,20 +717,7 @@ async function loadPoster(anime) {
         bannerElement.src = candidates.find(src => src) || 'https://shikimori.one/assets/globals/missing_original.jpg';
     };
 
-    fetchKitsuBanner(anime)
-        .then(url => {
-            if (url) {
-                bannerElement.src = url;
-            } else {
-                bannerFallback();
-            }
-        })
-        .catch(err => {
-            console.warn('Kitsu banner fetch failed:', err);
-            bannerFallback();
-        });
-
-    // --- Player / Episodes block ---
+    // Если плеера нет, показываем сообщение
     if (!anime.playerInfo?.defaultLink) {
         posterElement.innerHTML = `<div class="player-placeholder">Плеер не найден</div>`;
     } else {
@@ -862,15 +825,7 @@ function createSmallAnimeCard(animeData, relationLabel = '') {
     }
 
     const imgEl = card.querySelector('.card-poster');
-    fetchKitsuPoster(animeData)
-        .then(url => {
-            if (url) {
-                imgEl.src = url;
-            } else {
-                imgEl.src = shikimoriPoster;
-            }
-        })
-        .catch(() => { imgEl.src = shikimoriPoster; });
+    imgEl.src = shikimoriPoster;
 
     return card;
 }

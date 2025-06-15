@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadPosterForCard(animeCard, anime) {
-        // Эта функция зависит от js/api.js (fetchKitsuPoster)
+        // Используем только Shikimori
         const shikimoriBaseUrl = 'https://shikimori.one';
         const fallbackPoster = `${shikimoriBaseUrl}/assets/globals/missing_original.jpg`;
         let shikimoriPosterUrl = fallbackPoster;
@@ -349,19 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const imgElement = animeCard.querySelector('.card-poster');
         if (!imgElement) return;
 
-        // Сначала пробуем получить постер из Kitsu
-        fetchKitsuPoster(anime)
-            .then(url => {
-                if (url) {
-                    imgElement.src = url;
-                } else {
-                    imgElement.src = shikimoriPosterUrl; // fallback
-                }
-            })
-            .catch(err => {
-                console.warn('Kitsu poster fetch failed:', err);
-                imgElement.src = shikimoriPosterUrl;
-            });
+        // Только Shikimori
+        imgElement.src = shikimoriPosterUrl;
     }
 
     loadGenres();

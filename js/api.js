@@ -38,63 +38,14 @@ async function fetchFromApi(action, params = {}) {
     }
 }
 
-async function getKitsuData(animeObject, imageType) {
-    const title = animeObject.name || animeObject.russian;
-    const year = animeObject.airedOn?.year;
-
-    if (!title) return null;
-
-    try {
-        const url = `https://kitsu.io/api/edge/anime?filter[text]=${encodeURIComponent(title)}`;
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            console.error(`Kitsu API error (${response.status}): ${response.statusText}`);
-            return null;
-        }
-
-        const data = await response.json();
-
-        if (!data.data || data.data.length === 0) {
-            return null;
-        }
-
-        // Ищем наиболее подходящий результат
-        let bestMatch = data.data[0];
-        if (year) {
-            const perfectMatch = data.data.find(item =>
-                item.attributes.startDate && new Date(item.attributes.startDate).getFullYear() === year
-            );
-            if (perfectMatch) {
-                bestMatch = perfectMatch;
-            }
-        }
-        
-        // imageType может быть 'posterImage' или 'coverImage'
-        return bestMatch.attributes?.[imageType]?.original || null;
-
-    } catch (error) {
-        console.error(`Ошибка получения данных с Kitsu для "${title}":`, error);
-        return null;
-    }
+// --- Kitsu disabled: always return null
+async function getKitsuBanner() {
+    return null;
 }
 
-/**
- * Получает URL баннера аниме из Kitsu API, сверяя год.
- * @param {object} animeObject - Объект аниме с Shikimori (включая name, russian, airedOn).
- * @returns {Promise<string|null>} - URL баннера или null.
- */
-async function getKitsuBanner(animeObject) {
-    return getKitsuData(animeObject, 'coverImage');
-}
-
-/**
- * Получает URL постера аниме из Kitsu API, сверяя год.
- * @param {object} animeObject - Объект аниме с Shikimori (включая name, russian, airedOn).
- * @returns {Promise<string|null>} - URL постера или null.
- */
-async function getKitsuPoster(animeObject) {
-    return getKitsuData(animeObject, 'posterImage');
+// --- Kitsu disabled: always return null
+async function getKitsuPoster() {
+    return null;
 }
 
 /**

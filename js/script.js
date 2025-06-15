@@ -224,19 +224,8 @@ async function loadPosterForCard(animeCard, anime) {
     const imgElement = animeCard.querySelector('.card-poster');
     if (!imgElement) return;
 
-    // Сначала пытаемся получить постер с Kitsu
-    fetchKitsuPoster(anime)
-        .then(url => {
-            if (url) {
-                imgElement.src = url; // Kitsu нашли -> ставим
-            } else {
-                imgElement.src = shikimoriPosterUrl; // fallback
-            }
-        })
-        .catch(err => {
-            console.warn('Kitsu poster fetch failed:', err);
-            imgElement.src = shikimoriPosterUrl;
-        });
+    // Загружаем постер только с Shikimori (fallback ниже)
+    imgElement.src = shikimoriPosterUrl;
 }
 
 /**
