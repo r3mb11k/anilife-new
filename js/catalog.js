@@ -258,8 +258,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     
     // Utility Functions (should be in utils.js, but here for simplicity)
-    const showLoader = () => preloader.style.display = 'block';
-    const hideLoader = () => preloader.style.display = 'none';
+    const showLoader = () => {};
+    const hideLoader = () => {};
 
     function debounce(fn, delay) {
         let timeoutId;

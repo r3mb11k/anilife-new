@@ -48,7 +48,7 @@ async function loadAnimeDetails(animeId) {
     const preloader = document.getElementById('preloader');
     const content = document.getElementById('anime-content');
 
-    preloader.style.display = 'flex';
+    if (preloader) preloader.style.display = 'none';
     content.style.display = 'none';
 
     try {
@@ -67,7 +67,7 @@ async function loadAnimeDetails(animeId) {
         console.error("Error loading anime details:", error);
         showError(error.message || "An error occurred while loading data.");
     } finally {
-        preloader.style.display = 'none';
+        if (preloader) preloader.style.display = 'none';
         content.style.display = 'block';
         // Сбрасываем флаг в случае ошибки, чтобы можно было попробовать еще раз (например, кнопкой)
         // isDetailsLoading = false; // Пока оставим true, чтобы избежать повторных вызовов при сбоях
@@ -954,7 +954,8 @@ function initSectionCarousel(container) {
 }
 
 function showError(message) {
-    document.getElementById('preloader').style.display = 'none';
+    const preloadEl = document.getElementById('preloader');
+    if (preloadEl) preloadEl.style.display = 'none';
     const content = document.getElementById('anime-content');
         content.style.display = 'block';
     content.innerHTML = `
