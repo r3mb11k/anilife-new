@@ -866,7 +866,7 @@ function createSmallAnimeCard(animeData, relationLabel = '') {
     return card;
 }
 
-// ---------- helpers for fast list rendering ----------
+// ---------- helpers for fast list rendering osnova----------
 function renderRelatedAnimeList(rawRelated) {
     const container = document.getElementById('related-anime-list');
     const sectionBlock = container?.closest('.related-anime');
