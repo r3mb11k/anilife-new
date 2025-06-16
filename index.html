@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AniLIFE - Смотри аниме онлайн бесплатно</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/footer.css">
+    <!-- external icon and swiper styles removed -->
+</head>
+<body>
+    <header class="header-container">
+        <div class="logo">
+            <a href="/">Ani<span>Life</span></a>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Найти аниме" id="searchInput">
+        </div>
+        <nav class="header-nav">
+            <a href="/catalog.html"><img src="/images/catalog.png" alt="catalog" width="24" height="24"></a>
+            <button class="notification-btn"><img src="/images/notification.png" alt="notification" width="24" height="24"></button>
+            <button id="profileButton" class="profile-btn"><video src="/videos/654572ebf960eebd40d406bb34e48730.mp4" alt="profile" autoplay loop muted width="24" height="24"></video></button>
+        </nav>
+    </header>
+
+    <main class="container page-content">
+        <section class="anime-section" id="seasonal-anime">
+            <h2 class="section-title">Аниме сезона</h2>
+            <div class="carousel-container">
+                <div class="anime-grid"></div>
+                <button class="arrow prev-arrow">‹</button>
+                <button class="arrow next-arrow">›</button>
+            </div>
+        </section>
+
+        <!-- Жанры -->
+        <section class="anime-section" id="genres-section">
+            <h2 class="section-title">Жанры</h2>
+            <div class="carousel-container">
+                <div class="genre-grid"></div>
+                <button class="arrow prev-arrow">‹</button>
+                <button class="arrow next-arrow">›</button>
+            </div>
+        </section>
+
+        <section class="anime-section" id="popular-anime">
+            <h2 class="section-title">Популярные сериалы</h2>
+            <div class="carousel-container">
+                <div class="anime-grid"></div>
+                <button class="arrow prev-arrow">‹</button>
+                <button class="arrow next-arrow">›</button>
+            </div>
+        </section>
+
+        <section class="anime-section" id="popular-movies">
+            <h2 class="section-title">Популярные фильмы</h2>
+            <div class="carousel-container">
+                <div class="anime-grid"></div>
+                <button class="arrow prev-arrow">‹</button>
+                <button class="arrow next-arrow">›</button>
+            </div>
+        </section>
+
+        <!-- Анонсированные тайтлы -->
+        <section class="anime-section" id="upcoming-anime">
+            <h2 class="section-title">Анонсировано</h2>
+            <div class="carousel-container">
+                <div class="anime-grid"></div>
+                <button class="arrow prev-arrow">‹</button>
+                <button class="arrow next-arrow">›</button>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <div class="logo">
+                        <a href="/">Ani<span>Life</span></a>
+                    </div>
+                </div>
+                <div class="footer-right">
+                    <p>© 2025-2026 AniLife</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="/js/drag-scroll.js"></script>
+    <script src="/js/api.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/search-modal.js"></script>
+    <script src="/js/header-menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+/* AniLife Footer Styles */
+:root {
+    --primary-color: #DC143C;
+    --background: #000;
+    --background-second: #171719;
+    --text: #fff;
+}
+
+.footer {
+
+}
+
+.footer-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 50px;
+}
+
+.footer-content {
+    background-color: var(--background-second);
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    padding: 16px 32px;
+}
+
+
+.footer-right p{
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+
+@media (max-width: 768px) {
+    .footer-content {
+
+    }
+    .footer-container {
+        padding: 0 25px;
+    }
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+} 
