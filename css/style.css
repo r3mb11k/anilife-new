@@ -462,12 +462,9 @@ a {
     position: fixed;
     min-width: 180px;
     background: var(--background-second);
-    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    backdrop-filter: blur(12px);
-    z-index: 1100;
-    display: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    z-index: 1200;
 }
 .profile-menu.hidden { display: none; }
 .profile-menu:not(.hidden) { display: block; }
@@ -477,23 +474,35 @@ a {
     padding: 0;
 }
 .profile-menu-list li {
-    padding: 10px 18px;
+    width: 100%;
 }
-.profile-menu-list li a {
+.menu-link,
+.menu-item-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: var(--text);
-    font-weight: 600;
-    font-size: 14px;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 14px;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-decoration: none;
 }
-.profile-menu-list li:hover {
+.menu-item-btn:hover, .menu-link:hover {
     background: rgba(255,255,255,0.05);
 }
 .menu-icon {
-    width: 18px;
+    width: 20px;
     text-align: center;
+    opacity: 0.8;
 }
+.menu-label { }
+.menu-right { font-size: 12px; opacity: 0.6; }
+
+/* remove old theme-toggle white bg */
+.theme-toggle { background: none !important; }
 
 /* --- Search Modal --- */
 .search-modal-overlay {
@@ -592,4 +601,184 @@ a {
     text-align: center;
     color: #888;
 }
+
+/* --- Login Modal --- */
+.login-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.55);
+    z-index: 1300; /* above search */
+}
+.login-modal-overlay.hidden { display: none; }
+.login-modal-content {
+    background: var(--background-second);
+    width: 360px;
+    max-width: 90vw;
+    padding: 28px 32px 34px;
+    border-radius: 14px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    pointer-events: auto;
+}
+.login-title {
+    margin: 0 0 20px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+}
+.login-form, .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.login-form label, .auth-form label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+    color: #bbb;
+}
+.login-form input, .auth-form input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    font-size: 15px;
+}
+.login-form input + label, .auth-form input + label {
+    margin-top: 12px;
+}
+.login-form input:focus, .auth-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+.login-submit-btn {
+    margin-top: 6px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- Login Modal additions --- */
+.modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 18px;
+    line-height: 32px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.modal-close-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+.auth-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+.auth-tab {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    color: var(--text);
+    font-size: 14px;
+    cursor: pointer;
+}
+.auth-tab.active {
+    background: var(--primary-color);
+    color: #fff;
+}
+.auth-tab-content.hidden { display:none; }
+.auth-error {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #EF4444;
+    min-height: 16px;
+}
+
+.logout-btn {
+    background: transparent;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.profile-menu .menu-divider {
+    height: 1px;
+    margin: 6px 0;
+    background: rgba(255,255,255,0.08);
+}
+.menu-version {
+    padding: 8px 14px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+}
+
+.menu-icon-img {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    display: block;
+    opacity: 1;
+}
+
+/* --- Plan List Modal --- */
+.plan-list-options {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.plan-option-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.plan-option-item:hover {
+    background: #2d2d30;
+    border-radius: 8px;
+}
+.plan-option-item.selected {
+    background: #2d2d30;
+}
+.plan-option-item.remove-item {
+    font-weight: 500;
+    color: var(--primary-color);
+}
+/* --- end Plan List Modal --- */
+
+/* plans dropdown (fixed to viewport, recalculated on scroll) */
+.plan-menu {
+    position: fixed;
+    background-color: var(--background-second);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.45);
+    z-index: 1200; /* same level as profile menu */
+}
+
+/* hide state */
+.plan-menu.hidden {
+    display: none;
+}
+
 

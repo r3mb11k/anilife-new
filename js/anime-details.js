@@ -43,6 +43,8 @@ async function loadAnimeDetails(animeId) {
         console.warn('Anime details are already loading. Duplicate call prevented.');
         return;
     }
+    // сохраняем id глобально для других модулей (например, plan-modal)
+    window.currentAnimeId = animeId;
     isDetailsLoading = true;
 
     const preloader = document.getElementById('preloader');

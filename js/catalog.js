@@ -226,12 +226,47 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${API_BASE}?action=get_genres`);
             let genres = await response.json();
-            // Сортировка по русскому названию, а если нет – по латинице
+
+            // Убираем непопулярные/второстепенные жанры (та же логика, что и на главной)
+            const excludedNames = new Set([
+                'Додзинси',
+                'Shounen Ai','Shoujo Ai','Shounen-ai','Shoujo-ai',
+                'Сёнен-ай','Сёдзё-ай',
+                'Детское','Kids',
+                'Машины','Cars',
+                'Полиция','Police',
+                'Работа','Work',
+                'Самураи','Samurai',
+                'Сёдзе','Сёдзё','Shoujo',
+                'Смена пола','Gender Bender',
+                'Эротика','Erotica',
+                'Триллер','Thriller'
+            ].map(s=>s.toLowerCase()));
+
+            genres = genres.filter(g => {
+                const nameRu = (g.russian || '').toLowerCase();
+                const nameEn = (g.name || '').toLowerCase();
+                return !excludedNames.has(nameRu) && !excludedNames.has(nameEn);
+            });
+
+            // Удаляем дубликаты по имени (берём с минимальным id)
+            const byName = new Map();
+            genres.forEach(g => {
+                const key = (g.russian || g.name || '').trim().toLowerCase();
+                if (!key) return;
+                if (!byName.has(key) || g.id < byName.get(key).id) {
+                    byName.set(key, g);
+                }
+            });
+            genres = Array.from(byName.values());
+
+            // Сортировка по русскому названию, fallback к латинице
             genres = genres.sort((a,b)=>{
                 const aName = (a.russian || a.name || '').toLowerCase();
                 const bName = (b.russian || b.name || '').toLowerCase();
                 return aName.localeCompare(bName, 'ru');
             });
+
             const dropdown = document.querySelector('#genres-filter .select-dropdown');
             genres.forEach(genre => {
                 const item = document.createElement('div');

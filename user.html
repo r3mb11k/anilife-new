@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль | AniLIFE</title>
+  <link rel="stylesheet" href="/css/normalize.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header-container">
+    <div class="logo"><a href="/">Ani<span>Life</span></a></div>
+    <div class="search-bar"><input type="text" placeholder="Найти аниме" id="searchInput"></div>
+    <nav class="header-nav">
+      <a href="/catalog.html"><img src="/images/catalog.png" width="24" height="24" alt="Каталог"></a>
+      <button class="notification-btn"><img src="/images/notification.png" width="24" height="24" alt="Уведомления"></button>
+      <button id="profileButton" class="profile-btn"><video src="/videos/654572ebf960eebd40d406bb34e48730.mp4" autoplay loop muted width="24" height="24"></video></button>
+    </nav>
+  </header>
+
+  <main class="container profile-page" id="profileRoot">
+    <div class="profile-banner"></div>
+    <div class="profile-card">
+      <img class="profile-avatar" id="avatar" src="https://api.dicebear.com/7.x/initials/svg?seed=U" alt="avatar">
+      <h2 id="nickname">Nickname</h2>
+      <p id="joined">На сайте с …</p>
+      <p id="status">Статус: offline</p>
+    </div>
+    <section>
+      <h3>Списки аниме</h3>
+      <ul id="listsUl"></ul>
+    </section>
+  </main>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const cfg = await fetch('/.netlify/functions/supabase_config').then(r=>r.json());
+    const supa = createClient(cfg.url, cfg.anon);
+
+    // numeric id from /user/123
+    const numericId = location.pathname.split('/').pop();
+    const { data: profile, error } = await supa
+      .from('profiles')
+      .select('*')
+      .eq('id', numericId)
+      .single();
+    if (error || !profile) {
+      document.querySelector('main').innerHTML = '<h1>Профиль не найден</h1>';
+      throw error;
+    }
+
+    const userEmail = profile.email || 'user';
+    document.getElementById('nickname').textContent = profile.nickname || userEmail.split('@')[0];
+    if (profile.created_at) {
+      document.getElementById('joined').textContent = 'На сайте с ' + new Date(profile.created_at).toLocaleDateString('ru-RU');
+    }
+    document.getElementById('status').textContent = 'Статус: online';
+    document.getElementById('avatar').src = profile.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(userEmail[0]||'U')}`;
+
+    // списки текущего пользователя
+    const listsRes = await supa
+      .from('anime_lists')
+      .select('status')
+      .eq('user_id', profile.user_id);
+    const counters = { watching:0, planned:0, dropped:0, completed:0, favorite:0 };
+    if (!listsRes.error && Array.isArray(listsRes.data)) {
+      listsRes.data.forEach(r => { if (counters[r.status]!==undefined) counters[r.status]++; });
+    }
+    const liMap = {
+      watching: 'Смотрю — ',
+      planned: 'Запланировано — ',
+      dropped: 'Брошено — ',
+      completed: 'Просмотрено — ',
+      favorite: 'Любимое — '
+    };
+    const ul = document.getElementById('listsUl');
+    Object.entries(counters).forEach(([key,val])=>{
+      const li=document.createElement('li');
+      li.textContent = liMap[key]+val;
+      ul.appendChild(li);
+    });
+  </script>
+  <script src="/js/api.js"></script>
+  <script src="/js/search-modal.js"></script>
+  <script src="/js/header-menu.js"></script>
+</body>
+</html> 

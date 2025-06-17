@@ -22,5 +22,12 @@
   to = "/anime.html"
   status = 200 
 
+# Правило для "красивых" URL на странице пользователя.
+# Все запросы вида /user/что-угодно будут обрабатываться файлом user.html.
+[[redirects]]
+  from = "/user/*"
+  to = "/user.html"
+  status = 200
+
 [functions.anime]
   timeout = 90 

@@ -490,54 +490,50 @@ exports.handler = async (event) => {
 
             case 'get_main_page_data':
                 const mainPageCacheKey = 'main_page_data';
-                const cachedMainPageData = QUERY_CACHE.get(mainPageCacheKey);
-                if (cachedMainPageData && cachedMainPageData.expiry > Date.now()) {
+                const cachedMain = QUERY_CACHE.get(mainPageCacheKey);
+                if (cachedMain && cachedMain.expiry > Date.now()) {
                     console.log('[Cache] HIT for main page data');
-                    data = cachedMainPageData.data;
+                    data = cachedMain.data;
                 } else {
                     console.log('[Cache] MISS for main page data');
-                    // Запускаем 2 запроса параллельно: один для всех аниме, другой для жанров
-                    const [
-                        animeData,
-                        genresData
-                    ] = await Promise.all([
-                        fetchFromShikimoriGraphQL(MAIN_PAGE_ANIME_QUERY, { seasonalSeason: getCurrentAnimeSeason() }),
-                        fetch('https://shikimori.one/api/genres', { headers: { 'User-Agent': USER_AGENT } }).then(res => res.json())
-                    ]);
+                    try {
+                        const [animeData, genresDataRaw] = await Promise.all([
+                            fetchFromShikimoriGraphQL(MAIN_PAGE_ANIME_QUERY, { seasonalSeason: getCurrentAnimeSeason() }),
+                            fetch('https://shikimori.one/api/genres', { headers: { 'User-Agent': USER_AGENT } }).then(r => r.json())
+                        ]);
 
-                    // Функция для дедупликации по франшизе
-                    const deduplicate = (animeList) => {
-                        const seenFranchises = new Set();
-                        const deduplicatedData = [];
-                        if (!Array.isArray(animeList)) return [];
-                        for (const anime of animeList) {
-                            if (anime.franchise) {
-                                if (!seenFranchises.has(anime.franchise)) {
-                                    seenFranchises.add(anime.franchise);
-                                    deduplicatedData.push(anime);
-                                }
-                            } else {
-                                deduplicatedData.push(anime);
-                            }
+                        // Фильтруем 18+ жанры
+                        const adultGenres = new Set(['Hentai', 'Yaoi', 'Yuri']);
+                        const genresData = genresDataRaw.filter(g => !adultGenres.has(g.name));
+
+                        const deduplicate = (list) => {
+                            const seen = new Set();
+                            return (Array.isArray(list)?list:[]).filter(a => {
+                                if (!a.franchise) return true;
+                                if (seen.has(a.franchise)) return false;
+                                seen.add(a.franchise);
+                                return true;
+                            });
+                        };
+
+                        data = {
+                            seasonal: deduplicate(animeData.seasonal),
+                            top: deduplicate(animeData.top),
+                            movies: deduplicate(animeData.movies),
+                            anons: deduplicate(animeData.anons),
+                            genres: genresData
+                        };
+
+                        QUERY_CACHE.set(mainPageCacheKey, { data, expiry: Date.now() + CACHE_TTL_MS });
+                    } catch (err) {
+                        console.error('[main_page_data] failed:', err.message);
+                        if (cachedMain) {
+                            console.log('Serving stale cached main page data');
+                            data = cachedMain.data;
+                        } else {
+                            data = { error: 'rate_limited' };
                         }
-                        return deduplicatedData;
-                    };
-                    
-                    // Фильтруем "взрослые" жанры
-                    const adultGenres = new Set(['Hentai', 'Yaoi', 'Yuri']);
-                    const filteredGenres = genresData.filter(g => !adultGenres.has(g.name));
-
-                    // Собираем все данные в один объект
-                    data = {
-                        seasonal: deduplicate(animeData.seasonal),
-                        top: deduplicate(animeData.top),
-                        movies: deduplicate(animeData.movies),
-                        anons: deduplicate(animeData.anons),
-                        genres: filteredGenres
-                    };
-                    
-                    // Сохраняем в кеш
-                    QUERY_CACHE.set(mainPageCacheKey, { data, expiry: Date.now() + CACHE_TTL_MS });
+                    }
                 }
                 break;
 
