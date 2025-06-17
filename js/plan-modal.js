@@ -91,7 +91,7 @@
     if (window.supabaseClient) return window.supabaseClient;
     // fallback – create client directly (rare)
     const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm');
-    const cfg = await fetch('/.netlify/functions/supabase_config').then(r => r.json());
+    const cfg = await fetch('https://anilife-fun.netlify.app/.netlify/functions/supabase_config').then(r => r.json());
     return createClient(cfg.url, cfg.anon);
   }
 

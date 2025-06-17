@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = '/.netlify/functions/anime';
+    const API_BASE = 'https://anilife-fun.netlify.app/.netlify/functions/anime';
 
     // Читаем ?genre=<id> из URL, если есть
     const urlParams = new URLSearchParams(window.location.search);

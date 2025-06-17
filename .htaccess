@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# Pretty URL for anime details: /anime/123-some-title → /anime.html?id=123
+RewriteRule ^anime/([0-9]+)(-[A-Za-z0-9\-_]+)?$ /anime.html?id=$1 [L,QSA]
+
+# Pretty URL for user profiles: /user/123 → /user.html?id=123
+RewriteRule ^user/([0-9]+)$ /user.html?id=$1 [L,QSA]
+
+# Fallback: if file or directory doesn't exist, serve index.html (for future SPA behaviour)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.html [L] 

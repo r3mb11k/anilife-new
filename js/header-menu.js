@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let anon = window.SUPABASE_ANON_KEY;
     if (!url || !anon) {
       try {
-        const resp = await fetch('/.netlify/functions/supabase_config');
+        const resp = await fetch('https://anilife-fun.netlify.app/.netlify/functions/supabase_config');
         if (resp.ok) {
           const json = await resp.json();
           url = json.url;
