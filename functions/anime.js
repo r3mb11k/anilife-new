@@ -7,6 +7,18 @@ const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
 const SHIKIMORI_GRAPHQL_URL = 'https://shikimori.one/api/graphql';
 const USER_AGENT = 'AniLIFE Project (for educational purposes)';
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+// helper to build JSON response consistently with CORS
+const buildJsonResponse = (statusCode, bodyObj) => ({
+  statusCode,
+  headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+  body: JSON.stringify(bodyObj),
+});
+
 /**
  * Выполняет запрос к GraphQL API Шикимори.
  * @param {string} query - GraphQL-запрос.
@@ -164,11 +176,22 @@ function getCurrentAnimeSeason() {
 }
 
 exports.handler = async (event) => {
+    // --- CORS Preflight Handling ---
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers: {
+                ...CORS_HEADERS,
+                'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+            },
+            body: ''
+        };
+    }
     const { queryStringParameters } = event;
     const { action, id, order, limit, query: searchQuery, page, kind, status, genre, rating } = queryStringParameters;
 
     if (!action) {
-        return { statusCode: 400, body: JSON.stringify({ error: 'Missing action parameter' }) };
+        return buildJsonResponse(400, { error: 'Missing action parameter' });
     }
 
     try {
@@ -294,7 +317,7 @@ exports.handler = async (event) => {
             
             case 'get_details':
                 if (!id) {
-                    return { statusCode: 400, body: JSON.stringify({ error: 'Missing id parameter' }) };
+                    return buildJsonResponse(400, { error: 'Missing id parameter' });
                 }
                 const detailsResponse = await fetchFromShikimoriGraphQL(GET_ANIME_DETAILS_QUERY, { ids: id });
                 data = detailsResponse.animes[0];
@@ -578,16 +601,9 @@ exports.handler = async (event) => {
             }
         }
 
-        return {
-            statusCode: 200,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-        };
+        return buildJsonResponse(200, data);
     } catch (error) {
         console.error('Error in handler:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Internal Server Error' })
-        };
+        return buildJsonResponse(500, { error: 'Internal Server Error' });
     }
 }; 

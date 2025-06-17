@@ -3,7 +3,7 @@
  * В локальной среде это может быть http://localhost:8888/.netlify/functions/
  * В продакшене это будет /netlify/functions/
  */
-const API_BASE_URL = 'https://anilife-fun.netlify.app/.netlify/functions/anime';
+const API_BASE_URL = '/.netlify/functions/anime';
 
 /**
  * Основная функция для взаимодействия с нашим бэкенд-API.

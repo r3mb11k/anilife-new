@@ -1,29 +1,9 @@
 // simple auth helper to keep header in sync with Supabase session
 import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm').then(async ({ createClient }) => {
-  let supabaseUrl = window.SUPABASE_URL;
-  let supabaseAnon = window.SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseAnon) {
-    // Fallback – запрашиваем из Netlify-функции ТОЛЬКО по абсолютному URL,
-    // чтобы на сторонних доменах (REG.RU) не было 404.
-    try {
-      const cfgResp = await fetch('https://anilife-fun.netlify.app/.netlify/functions/supabase_config');
-      if (cfgResp.ok) {
-        const cfg = await cfgResp.json();
-        supabaseUrl = cfg.url;
-        supabaseAnon = cfg.anon;
-      }
-    } catch (err) {
-      console.warn('Could not fetch Supabase config from Netlify:', err);
-    }
-  }
-
-  if (!supabaseUrl || !supabaseAnon) {
-    console.error('Supabase configuration missing (URL or anon key)');
-    return;
-  }
-
-  const supa = createClient(supabaseUrl, supabaseAnon);
+  const cfgResp = await fetch('/.netlify/functions/supabase_config');
+  if (!cfgResp.ok) return console.error('Supabase config missing');
+  const { url, anon } = await cfgResp.json();
+  const supa = createClient(url, anon);
   window.supabaseClient = supa;
 
   const profileBtn = document.getElementById('profileButton');
